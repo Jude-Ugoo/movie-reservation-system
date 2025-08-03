@@ -1,0 +1,201 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String    @unique
+  password_hash String
+  role          UserRoles
+  is_active     Boolean   @default(false)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  reservations       Reservation[]
+  payments           Payment[]
+  emailNotifications EmailNotification[]
+}
+
+model Movie {
+  id               String   @id @default(uuid())
+  title            String
+  description      String
+  duration_minutes Int
+  rating           String
+  release_date     DateTime
+  language         String
+  genre            String
+  poster_url       String
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  showtimes Showtime[]
+}
+
+model Theater {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  location    String
+  total_seats Int
+  seat_layout String? // JSON or schema reference
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  seats     Seat[]
+  showtimes Showtime[]
+}
+
+model Seat {
+  id          String   @id @default(uuid())
+  theater_id  String
+  seat_number String
+  row         String
+  seat_type   SeatType // e.g., regular, VIP, accessible
+  is_active   Boolean  @default(true)
+
+  theater Theater @relation(fields: [theater_id], references: [id])
+
+  reservationSeats ReservationSeat[]
+}
+
+model Showtime {
+  id               String   @id @default(uuid())
+  movie_id         String
+  theater_id       String
+  start_time       DateTime
+  end_time         DateTime
+  is_special_event Boolean  @default(false)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  promotion_id     String?
+
+  movie     Movie      @relation(fields: [movie_id], references: [id])
+  theater   Theater    @relation(fields: [theater_id], references: [id])
+  promotion Promotion? @relation(fields: [promotion_id], references: [id])
+
+  reservations Reservation[]
+}
+
+model Reservation {
+  id              String            @id @default(uuid())
+  user_id         String
+  showtime_id     String
+  status          ReservationStatus // e.g., held, confirmed, cancelled
+  hold_expires_at DateTime
+  total_price     Decimal
+  group_booking   Boolean           @default(false)
+  promotion_id    String?
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+
+  user      User       @relation(fields: [user_id], references: [id])
+  showtime  Showtime   @relation(fields: [showtime_id], references: [id])
+  promotion Promotion? @relation(fields: [promotion_id], references: [id])
+
+  reservationSeats   ReservationSeat[]
+  payments           Payment[]
+  emailNotifications EmailNotification[]
+}
+
+model ReservationSeat {
+  id             String            @id @default(uuid())
+  reservation_id String
+  seat_id        String
+  price          Decimal
+  status         ReservationStatus // e.g., held, confirmed, cancelled
+
+  reservation Reservation @relation(fields: [reservation_id], references: [id])
+  Seat        Seat?       @relation(fields: [seat_id], references: [id])
+}
+
+model Promotion {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  discount_type  String // e.g., percentage, fixed
+  discount_value Decimal
+  start_date     DateTime
+  end_date       DateTime
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  showtime     Showtime[]
+  reservations Reservation[]
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  reservation_id String
+  user_id        String
+  amount         Decimal
+  payment_method PaymentMethod
+  payment_status PaymentStatus
+  transaction_id String
+  payment_date   DateTime
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+
+  reservation Reservation @relation(fields: [reservation_id], references: [id])
+  user        User        @relation(fields: [user_id], references: [id])
+}
+
+model EmailNotification {
+  id                String           @id @default(uuid())
+  user_id           String
+  reservation_id    String
+  notification_type NotificationType
+  status            String
+  sent_at           DateTime
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+
+  user        User        @relation(fields: [user_id], references: [id])
+  reservation Reservation @relation(fields: [reservation_id], references: [id])
+}
+
+enum PaymentMethod {
+  TRANSFER
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum SeatType {
+  REGULAR
+  VIP
+  ACCESSIBLE
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMATION
+  REMINDER
+  CANCELLATION
+}
+
+enum ReservationStatus {
+  HELD
+  CONFIRMED
+  CANCELLED
+}
+
+enum UserRoles {
+  ADMIN
+  USER
+}
