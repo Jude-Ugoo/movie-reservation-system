@@ -14,12 +14,12 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
+  user_id            String    @id @default(uuid())
   email         String    @unique
   username      String    @unique
   password_hash String
   role          UserRoles
-  is_active     Boolean   @default(false)
+  is_active     Boolean?   @default(false)
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
 
@@ -29,7 +29,7 @@ model User {
 }
 
 model Movie {
-  id               String   @id @default(uuid())
+  movie_id               String   @id @default(uuid())
   title            String
   description      String
   duration_minutes Int
@@ -45,7 +45,7 @@ model Movie {
 }
 
 model Theater {
-  id          String   @id @default(uuid())
+  theater_id          String   @id @default(uuid())
   name        String   @unique
   location    String
   total_seats Int
@@ -58,20 +58,20 @@ model Theater {
 }
 
 model Seat {
-  id          String   @id @default(uuid())
+  seat_id          String   @id @default(uuid())
   theater_id  String
   seat_number String
   row         String
   seat_type   SeatType // e.g., regular, VIP, accessible
   is_active   Boolean  @default(true)
 
-  theater Theater @relation(fields: [theater_id], references: [id])
+  theater Theater @relation(fields: [theater_id], references: [theater_id])
 
   reservationSeats ReservationSeat[]
 }
 
 model Showtime {
-  id               String   @id @default(uuid())
+  showtime_id               String   @id @default(uuid())
   movie_id         String
   theater_id       String
   start_time       DateTime
@@ -81,15 +81,15 @@ model Showtime {
   updated_at       DateTime @updatedAt
   promotion_id     String?
 
-  movie     Movie      @relation(fields: [movie_id], references: [id])
-  theater   Theater    @relation(fields: [theater_id], references: [id])
-  promotion Promotion? @relation(fields: [promotion_id], references: [id])
+  movie     Movie      @relation(fields: [movie_id], references: [movie_id])
+  theater   Theater    @relation(fields: [theater_id], references: [theater_id])
+  promotion Promotion? @relation(fields: [promotion_id], references: [promotion_id])
 
   reservations Reservation[]
 }
 
 model Reservation {
-  id              String            @id @default(uuid())
+  reservation_id              String            @id @default(uuid())
   user_id         String
   showtime_id     String
   status          ReservationStatus // e.g., held, confirmed, cancelled
@@ -100,9 +100,9 @@ model Reservation {
   created_at      DateTime          @default(now())
   updated_at      DateTime          @updatedAt
 
-  user      User       @relation(fields: [user_id], references: [id])
-  showtime  Showtime   @relation(fields: [showtime_id], references: [id])
-  promotion Promotion? @relation(fields: [promotion_id], references: [id])
+  user      User       @relation(fields: [user_id], references: [user_id])
+  showtime  Showtime   @relation(fields: [showtime_id], references: [showtime_id])
+  promotion Promotion? @relation(fields: [promotion_id], references: [promotion_id])
 
   reservationSeats   ReservationSeat[]
   payments           Payment[]
@@ -110,18 +110,18 @@ model Reservation {
 }
 
 model ReservationSeat {
-  id             String            @id @default(uuid())
+  reservationSeat_id             String            @id @default(uuid())
   reservation_id String
   seat_id        String
   price          Decimal
   status         ReservationStatus // e.g., held, confirmed, cancelled
 
-  reservation Reservation @relation(fields: [reservation_id], references: [id])
-  Seat        Seat?       @relation(fields: [seat_id], references: [id])
+  reservation Reservation @relation(fields: [reservation_id], references: [reservation_id])
+  Seat        Seat?       @relation(fields: [seat_id], references: [seat_id])
 }
 
 model Promotion {
-  id             String   @id @default(uuid())
+  promotion_id             String   @id @default(uuid())
   name           String
   description    String?
   discount_type  String // e.g., percentage, fixed
@@ -137,7 +137,7 @@ model Promotion {
 }
 
 model Payment {
-  id             String        @id @default(uuid())
+  payment_id             String        @id @default(uuid())
   reservation_id String
   user_id        String
   amount         Decimal
@@ -148,12 +148,12 @@ model Payment {
   created_at     DateTime      @default(now())
   updated_at     DateTime      @updatedAt
 
-  reservation Reservation @relation(fields: [reservation_id], references: [id])
-  user        User        @relation(fields: [user_id], references: [id])
+  reservation Reservation @relation(fields: [reservation_id], references: [reservation_id])
+  user        User        @relation(fields: [user_id], references: [user_id])
 }
 
 model EmailNotification {
-  id                String           @id @default(uuid())
+  notification_id                String           @id @default(uuid())
   user_id           String
   reservation_id    String
   notification_type NotificationType
@@ -162,8 +162,8 @@ model EmailNotification {
   created_at        DateTime         @default(now())
   updated_at        DateTime         @updatedAt
 
-  user        User        @relation(fields: [user_id], references: [id])
-  reservation Reservation @relation(fields: [reservation_id], references: [id])
+  user        User        @relation(fields: [user_id], references: [user_id])
+  reservation Reservation @relation(fields: [reservation_id], references: [reservation_id])
 }
 
 enum PaymentMethod {
@@ -197,5 +197,5 @@ enum ReservationStatus {
 
 enum UserRoles {
   ADMIN
-  USER
+  CUSTOMER
 }
