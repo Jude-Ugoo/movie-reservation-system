@@ -14,12 +14,12 @@ datasource db {
 }
 
 model User {
-  user_id            String    @id @default(uuid())
+  user_id       String    @id @default(uuid())
   email         String    @unique
   username      String    @unique
   password_hash String
   role          UserRoles
-  is_active     Boolean?   @default(false)
+  is_active     Boolean?  @default(false)
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
 
@@ -29,7 +29,7 @@ model User {
 }
 
 model Movie {
-  movie_id               String   @id @default(uuid())
+  movie_id         String   @id @default(uuid())
   title            String
   description      String
   duration_minutes Int
@@ -45,7 +45,7 @@ model Movie {
 }
 
 model Theater {
-  theater_id          String   @id @default(uuid())
+  theater_id  String   @id @default(uuid())
   name        String   @unique
   location    String
   total_seats Int
@@ -58,7 +58,7 @@ model Theater {
 }
 
 model Seat {
-  seat_id          String   @id @default(uuid())
+  seat_id     String   @id @default(uuid())
   theater_id  String
   seat_number String
   row         String
@@ -71,7 +71,7 @@ model Seat {
 }
 
 model Showtime {
-  showtime_id               String   @id @default(uuid())
+  showtime_id      String   @id @default(uuid())
   movie_id         String
   theater_id       String
   start_time       DateTime
@@ -85,11 +85,12 @@ model Showtime {
   theater   Theater    @relation(fields: [theater_id], references: [theater_id])
   promotion Promotion? @relation(fields: [promotion_id], references: [promotion_id])
 
-  reservations Reservation[]
+  reservations     Reservation[]
+  reservationSeats ReservationSeat[]
 }
 
 model Reservation {
-  reservation_id              String            @id @default(uuid())
+  reservation_id  String            @id @default(uuid())
   user_id         String
   showtime_id     String
   status          ReservationStatus // e.g., held, confirmed, cancelled
@@ -110,18 +111,27 @@ model Reservation {
 }
 
 model ReservationSeat {
-  reservationSeat_id             String            @id @default(uuid())
-  reservation_id String
-  seat_id        String
-  price          Decimal
-  status         ReservationStatus // e.g., held, confirmed, cancelled
+  reservationSeat_id String            @id @default(uuid())
+  reservation_id     String
+  seat_id            String
+  showtime_id        String // Added to track which showtime this seat is reserved for
+  price              Decimal
+  status             ReservationStatus
+  created_at         DateTime          @default(now())
+  updated_at         DateTime          @updatedAt
 
   reservation Reservation @relation(fields: [reservation_id], references: [reservation_id])
-  Seat        Seat?       @relation(fields: [seat_id], references: [seat_id])
+  seat        Seat        @relation(fields: [seat_id], references: [seat_id])
+  showtime    Showtime    @relation(fields: [showtime_id], references: [showtime_id])
+
+  @@unique([seat_id, reservation_id])
+  @@unique([seat_id, showtime_id, status]) // Prevent double booking for the same showtime when status is CONFIRMED
+  @@index([seat_id, status])
+  @@index([showtime_id, status])
 }
 
 model Promotion {
-  promotion_id             String   @id @default(uuid())
+  promotion_id   String   @id @default(uuid())
   name           String
   description    String?
   discount_type  String // e.g., percentage, fixed
@@ -137,7 +147,7 @@ model Promotion {
 }
 
 model Payment {
-  payment_id             String        @id @default(uuid())
+  payment_id     String        @id @default(uuid())
   reservation_id String
   user_id        String
   amount         Decimal
@@ -153,7 +163,7 @@ model Payment {
 }
 
 model EmailNotification {
-  notification_id                String           @id @default(uuid())
+  notification_id   String           @id @default(uuid())
   user_id           String
   reservation_id    String
   notification_type NotificationType

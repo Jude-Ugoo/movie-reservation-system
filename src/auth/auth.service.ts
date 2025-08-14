@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto, LoginDto } from './dto';
 
@@ -69,7 +69,10 @@ export class AuthService {
         user,
       };
     } catch (error) {
-      throw error;
+      if (error instanceof ForbiddenException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to login')
     }
   }
 
