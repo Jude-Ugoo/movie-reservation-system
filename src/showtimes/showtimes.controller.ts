@@ -24,7 +24,7 @@ import { GetUser } from 'src/auth/decorator';
 @ApiTags('Showtimes')
 @ApiBearerAuth()
 @UseGuards(JwtGuard)
-@Controller('showtimes')
+@Controller('showtime')
 export class ShowtimesController {
   constructor(private readonly showtimesService: ShowtimesService) {}
 
