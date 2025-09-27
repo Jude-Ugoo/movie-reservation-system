@@ -21,6 +21,7 @@ export class UsersService {
           is_active: true,
           created_at: true,
           updated_at: true,
+          reservations: true,
         },
       });
 
@@ -48,6 +49,42 @@ export class UsersService {
           is_active: true,
           created_at: true,
           updated_at: true,
+          reservations: {
+            select: {
+              reservation_id: true,
+              status: true,
+              total_price: true,
+              created_at: true,
+              showtime: {
+                select: {
+                  start_time: true,
+                  movie: {
+                    select: {
+                      title: true,
+                      poster_url: true,
+                    },
+                  },
+                  theater: {
+                    select: {
+                      name: true,
+                      location: true,
+                    },
+                  },
+                },
+              },
+              reservationSeats: {
+                select: {
+                  seat: {
+                    select: {
+                      seat_number: true,
+                      row: true,
+                      seat_type: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
 
@@ -64,19 +101,55 @@ export class UsersService {
     }
   }
 
-   async getUserProfile(id: string) {
+  async getUserProfile(id: string) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { user_id: id },
         select: {
-          user_id: true,
-          email: true,
-          username: true,
-          role: true,
-          is_active: true,
-          created_at: true,
-          updated_at: true,
-        },
+			user_id: true,
+			email: true,
+			username: true,
+			role: true,
+			is_active: true,
+			created_at: true,
+			updated_at: true,
+			reservations: {
+			  select: {
+				reservation_id: true,
+				status: true,
+				total_price: true,
+				created_at: true,
+				showtime: {
+				  select: {
+					start_time: true,
+					movie: {
+					  select: {
+						title: true,
+						poster_url: true,
+					  },
+					},
+					theater: {
+					  select: {
+						name: true,
+						location: true,
+					  },
+					},
+				  },
+				},
+				reservationSeats: {
+				  select: {
+					seat: {
+					  select: {
+						seat_number: true,
+						row: true,
+						seat_type: true,
+					  },
+					},
+				  },
+				},
+			  },
+			},
+		  },
       });
 
       if (!user) {

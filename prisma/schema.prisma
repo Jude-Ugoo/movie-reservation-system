@@ -30,7 +30,7 @@ model User {
 
 model Movie {
   movie_id         String   @id @default(uuid())
-  title            String
+  title            String   @unique
   description      String
   duration_minutes Int
   rating           String

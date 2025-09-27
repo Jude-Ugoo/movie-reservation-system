@@ -20,6 +20,7 @@ import { PromotionsModule } from './promotions/promotions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { EmailNotificationsModule } from './email-notifications/email-notifications.module';
 import config from './config/config';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import config from './config/config';
     PromotionsModule,
     PaymentsModule,
     EmailNotificationsModule,
+    HttpModule
   ],
   controllers: [AppController, UsersController, TheatersController],
   providers: [AppService, UsersService, MovieService, TheatersService],

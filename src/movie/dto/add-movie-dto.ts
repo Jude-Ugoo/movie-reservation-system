@@ -1,44 +1,63 @@
-import { IsDateString, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AddMovieDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  title: string;
+  @IsOptional()
+  @IsInt()
+  tmdbId?: number; // If provided, we'll fetch from TMDb instead
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  description: string;
+  @IsOptional()
+  title?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  description?: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  duration_minutes: number;
+  @IsOptional()
+  duration_minutes?: number;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  rating: string;
+  @IsOptional()
+  rating?: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsDateString()
-  release_date: Date;
+  @IsOptional()
+  release_date?: Date;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  language: string;
+  @IsOptional()
+  language?: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  genre: string;
+  @IsOptional()
+  genre?: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  poster_url: string;
+  @IsOptional()
+  poster_url?: string;
 }

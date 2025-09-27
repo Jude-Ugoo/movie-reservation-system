@@ -8,6 +8,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -29,8 +30,8 @@ import { UserRoles } from '@prisma/client';
 export class MovieController {
   constructor(private movieService: MovieService) {}
 
-  @UseGuards(RoleGuard)
-  @Roles(UserRoles.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @Roles(UserRoles.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Add a new movie (Admin only)' })
   @ApiResponse({ status: 201, description: 'Movie added successfully' })
@@ -38,7 +39,7 @@ export class MovieController {
     const isAdmin = role === 'ADMIN';
 
     if (!isAdmin) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'You do not have permission to access this resource',
       );
     }
@@ -52,6 +53,11 @@ export class MovieController {
     return this.movieService.getMovies();
   }
 
+  @Get('tmdb-movies')
+  getTmdbMovies() {
+    return this.movieService.getTmdbMovies()
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get movie by ID' })
   @ApiResponse({ status: 200, description: 'Movie found' })
@@ -60,8 +66,8 @@ export class MovieController {
     return this.movieService.getMovieById(id);
   }
 
-  @UseGuards(RoleGuard)
-  @Roles(UserRoles.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @Roles(UserRoles.ADMIN)
   @Patch(':id')
   @ApiOperation({ summary: 'Update movie by ID' })
   @ApiResponse({ status: 200, description: 'Movie updated successfully' })
@@ -74,7 +80,7 @@ export class MovieController {
     const isAdmin = role === 'ADMIN';
 
     if (!isAdmin) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'You do not have permission to access this resource',
       );
     }
@@ -82,8 +88,8 @@ export class MovieController {
     return this.movieService.update(id, dto);
   }
 
-  @UseGuards(RoleGuard)
-  @Roles(UserRoles.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @Roles(UserRoles.ADMIN)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete movie by ID' })
   @ApiResponse({ status: 200, description: 'Movie deleted successfully' })
@@ -92,11 +98,14 @@ export class MovieController {
     const isAdmin = role === 'ADMIN';
 
     if (!isAdmin) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'You do not have permission to access this resource',
       );
     }
 
     return this.movieService.delete(id);
   }
+
+  
+
 }
