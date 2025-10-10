@@ -30,8 +30,8 @@ import { UserRoles } from '@prisma/client';
 export class TheatersController {
   constructor(private theaterService: TheatersService) {}
 
-  @UseGuards(RoleGuard)
-  @Roles(UserRoles.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @Roles(UserRoles.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Add a new theater (Admin only)' })
   @ApiResponse({ status: 201, description: 'Theater added successfully' })

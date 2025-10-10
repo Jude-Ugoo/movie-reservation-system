@@ -20,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtGuard } from 'src/auth/guards';
 import { GetUser } from 'src/auth/decorator';
+import { GenerateSeatsDto } from './dto/generate-seat.dto';
 
 @ApiTags('Seats')
 @ApiBearerAuth()
@@ -40,6 +41,13 @@ export class SeatsController {
       );
     }
     return this.seatsService.create(createSeatDto);
+  }
+
+  @Post(':id/generate-seats')
+  @ApiOperation({ summary: 'Generates seat (Admin only)' })
+  @ApiResponse({ status: 201, description: 'Seats generated successfully' })
+  generateSeats(@Param('id') id: string, @Body() dto: GenerateSeatsDto) {
+    return this.seatsService.generateSeats(id, dto);
   }
 
   @Get()

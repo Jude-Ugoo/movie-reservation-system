@@ -153,7 +153,6 @@ export class MovieService {
 	}
 
 	async getTmdbMovies(): Promise<any> {
-		this.logger.log('Fetching movies from TMDB API');
 		const access_key = this.config.get<string>('TMDB_API_READ_ACCESS_TOKEN');
 
 		if (!access_key) {

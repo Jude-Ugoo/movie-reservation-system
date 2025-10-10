@@ -68,6 +68,8 @@ model Seat {
   theater Theater @relation(fields: [theater_id], references: [theater_id])
 
   reservationSeats ReservationSeat[]
+
+  @@unique([theater_id, seat_number, row])
 }
 
 model Showtime {
